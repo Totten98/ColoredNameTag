@@ -1,8 +1,0 @@
-<#if licenseFirst??>
-${licenseFirst}
-</#if>
-${licensePrefix}This plugins is usable end editable only by 
-${licensePrefix}NaossCommunity & Totten98
-<#if licenseLast??>
-${licenseLast}
-</#if>
