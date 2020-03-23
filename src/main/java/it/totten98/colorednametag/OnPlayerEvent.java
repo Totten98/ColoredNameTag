@@ -1,7 +1,3 @@
-/*
- * This plugins is usable end editable only by 
- * NaossCommunity & Totten98
- */
 package it.totten98.colorednametag;
 
 import java.util.ArrayList;

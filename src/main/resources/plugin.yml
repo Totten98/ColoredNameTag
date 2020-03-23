@@ -8,3 +8,4 @@ description: Create a team and assign a color for each permission defined on con
 load: STARTUP
 database: false
 prefix: ColoredNameTag
+api-version: 1.15
