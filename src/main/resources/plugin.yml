@@ -1,6 +1,6 @@
 name: ColoredNameTag
 main: it.totten98.colorednametag.ColoredNametag
-version: 1
+version: 1.0.0
 authors: [Totten98, SimoSbara (Giuly)]
 website: https://www.totten98.it/
 depend: []
