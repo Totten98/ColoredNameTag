@@ -2,7 +2,7 @@ package it.totten98.colorednametag;
 
 import java.util.ArrayList;
 import lombok.Getter;
-import org.bukkit.ChatColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,6 +23,7 @@ public class OnPlayerEvent implements Listener {
     private ArrayList<String> ranks;
     private ArrayList<String> permessi;
     private ArrayList<ChatColor> colori;
+    private Player player;
     
     public OnPlayerEvent(ColoredNameTag c) {
        //
@@ -40,16 +41,16 @@ public class OnPlayerEvent implements Listener {
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player p = event.getPlayer();
+        player = event.getPlayer();
         
         instance = this;
         
-        Scoreboard board = p.getScoreboard();
+        Scoreboard board = player.getScoreboard();
         
         for(int i = 0; i < ranks.size(); i++) {
-            if(p.hasPermission(permessi.get(i))) {
-                Team team = c.getTeam(board, ranks.get(i), colori.get(i));
-                team.addEntry(p.getName());
+            if(player.hasPermission(permessi.get(i))) {
+                Team team = c.getTeam(board, colori.get(i));
+                team.addEntry(player.getName());
                 
                 break;
             }
@@ -77,5 +78,9 @@ public class OnPlayerEvent implements Listener {
                 }
             }
         }
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

@@ -3,10 +3,12 @@ package it.totten98.colorednametag;
 import java.io.File;
 import java.util.ArrayList;
 import lombok.Getter;
+import net.md_5.bungee.api.ChatColor;
+import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
@@ -25,6 +27,10 @@ public class ColoredNameTag extends JavaPlugin {
     private ArrayList<String> permessi = new ArrayList<>();
     private ArrayList<String> ranks = new ArrayList<>();
     private ArrayList<ChatColor> colori = new ArrayList<>();
+
+    private static OnPlayerEvent onPlayerEvent = null;
+
+    private static Chat chat = null;
     
     //Parte quando si accende
     @Override
@@ -34,8 +40,10 @@ public class ColoredNameTag extends JavaPlugin {
         createConfig();
         getConfigData();
         addOnlinePlayers();
-        
-        new OnPlayerEvent(this);
+
+        setupChat();
+
+        onPlayerEvent = new OnPlayerEvent(this);
     }
     
     //Parte quando si spegne
@@ -78,7 +86,7 @@ public class ColoredNameTag extends JavaPlugin {
             Scoreboard b = p.getScoreboard();
             for(int i = 0; i < ranks.size(); i++) {
                 if(p.hasPermission(permessi.get(i))) {
-                    Team team = getTeam(b, ranks.get(i), colori.get(i));
+                    Team team = getTeam(b, colori.get(i));
                     team.addEntry(p.getName());
                     break;
                 }
@@ -86,10 +94,13 @@ public class ColoredNameTag extends JavaPlugin {
         }
     }
     
-    public Team getTeam(Scoreboard scoreboard, String name, ChatColor c) {
-       if(scoreboard.getTeam(name) == null) {
+    public Team getTeam(Scoreboard scoreboard, ChatColor c) {
+        String name = chat.getPrimaryGroup(onPlayerEvent.getPlayer());
+        if(scoreboard.getTeam(name) == null) {
            Team team = scoreboard.registerNewTeam(name);
-           team.setColor(c);
+           //team.setColor(c);
+           team.setPrefix(ChatColor.translateAlternateColorCodes('&', chat.getGroupPrefix(onPlayerEvent.getPlayer().getWorld(), name)));
+           team.setSuffix(chat.getGroupSuffix(onPlayerEvent.getPlayer().getWorld(), name));
            
            return team;
        }
@@ -132,5 +143,15 @@ public class ColoredNameTag extends JavaPlugin {
     
     public ArrayList<ChatColor> getColorArray() {
         return colori;
+    }
+
+    private boolean setupChat() {
+        RegisteredServiceProvider<Chat> rsp = getServer().getServicesManager().getRegistration(Chat.class);
+        chat = rsp.getProvider();
+        return chat != null;
+    }
+
+    public static Chat getChat() {
+        return chat;
     }
 }
