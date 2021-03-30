@@ -1,2 +1,2 @@
 # ColoredNameTag
-Create a team and assign a color for each permission defined on config.
+Create a team and assign prefix and suffix based on permission (vault).
