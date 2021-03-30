@@ -10,6 +10,8 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
+import java.util.Objects;
+
 /**
  *
  * @author Totten98
@@ -69,7 +71,7 @@ public class ColoredNameTag extends JavaPlugin {
         String pn = player.getName();
         Team team;
         // TODO: 30/03/21 Add color from perms
-        if (getChat().getPlayerPrefix(player) != getChat().getGroupPrefix(player.getWorld(), pg)) {
+        if (!Objects.equals(getChat().getPlayerPrefix(player), getChat().getGroupPrefix(player.getWorld(), pg))) {
             Team t = b.getTeam(pn);
             if (t == null) {
                 t = b.registerNewTeam(pn);
