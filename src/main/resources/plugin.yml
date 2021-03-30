@@ -1,11 +1,11 @@
-name: ColoredNameTag
+name: ${project.artifactId}
 main: it.totten98.colorednametag.ColoredNameTag
-version: 1.0.0
-authors: [Totten98, SimoSbara (Giuly)]
+version: ${project.version}
+authors: [Totten98, SimoSbara (Giuly), Axel]
 website: https://www.totten98.it/
 depend: [Vault]
 description: Create a team and assign a color for each permission defined on config.
 load: STARTUP
 database: false
-prefix: ColoredNameTag
-api-version: 1.15
+prefix: ${project.artifactId}
+api-version: 1.16

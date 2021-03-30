@@ -1,12 +1,8 @@
 package it.totten98.colorednametag;
 
-import java.io.File;
-import java.util.ArrayList;
 import lombok.Getter;
-import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,26 +18,17 @@ public class ColoredNameTag extends JavaPlugin {
     
     @Getter private static ColoredNameTag instance;
 
-    public static final String CONFIG = "config.yml";
-
-    private ArrayList<String> permessi = new ArrayList<>();
-    private ArrayList<String> ranks = new ArrayList<>();
-    private ArrayList<ChatColor> colori = new ArrayList<>();
-
     private static OnPlayerEvent onPlayerEvent = null;
 
     private static Chat chat = null;
-    
+
     //Parte quando si accende
     @Override
     public void onEnable() {
         instance = this;
-        
-        createConfig();
-        getConfigData();
-        addOnlinePlayers();
 
         setupChat();
+        addOnlinePlayers();
 
         onPlayerEvent = new OnPlayerEvent(this);
     }
@@ -52,79 +39,19 @@ public class ColoredNameTag extends JavaPlugin {
         clearTeams();
     }
     
-    private void createConfig() {
-        try {
-            if (!getDataFolder().exists()) {
-                getDataFolder().mkdirs();
-                saveDefaultConfig();
-            }
-            
-            File file = new File(getDataFolder(), CONFIG);
-            
-            if (!file.exists()) 
-            {
-                saveDefaultConfig();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void getConfigData() {
-        ConfigurationSection configurationSection = this.getConfig().getConfigurationSection("groups");
-        if (configurationSection != null) {
-            for (String rank : configurationSection.getKeys(false)) {
-                ranks.add(rank);
-                permessi.add(getPermission(rank));
-                colori.add(getColor(rank));
-            }
-        }
-    }
-    
     public void addOnlinePlayers() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            Scoreboard b = p.getScoreboard();
-            for(int i = 0; i < ranks.size(); i++) {
-                if(p.hasPermission(permessi.get(i))) {
-                    Team team = getTeam(b, colori.get(i));
-                    team.addEntry(p.getName());
-                    break;
-                }
-            }  
+            addPlayerToTeam(p);
         }
-    }
-    
-    public Team getTeam(Scoreboard scoreboard, ChatColor c) {
-        String name = chat.getPrimaryGroup(onPlayerEvent.getPlayer());
-        if(scoreboard.getTeam(name) == null) {
-           Team team = scoreboard.registerNewTeam(name);
-           //team.setColor(c);
-           team.setPrefix(ChatColor.translateAlternateColorCodes('&', chat.getGroupPrefix(onPlayerEvent.getPlayer().getWorld(), name)));
-           team.setSuffix(chat.getGroupSuffix(onPlayerEvent.getPlayer().getWorld(), name));
-           
-           return team;
-       }
-       else {
-           return scoreboard.getTeam(name);
-       }
-    }
-    
-    public String getPermission(String groupName) {
-        return this.getConfig().getString("groups." + groupName + ".permission");
-    }
-    
-    public ChatColor getColor(String groupName) {
-        String color = this.getConfig().getString("groups." + groupName + ".color");
-        return ChatColor.valueOf(color);
     }
     
     public void clearTeams() {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         if (manager != null) {
             Scoreboard board = manager.getMainScoreboard();
-            for (String rank : ranks) {
-                if (board.getTeam(rank) != null) {
-                    Team team = board.getTeam(rank);
+            for (Team rank : board.getTeams()) {
+                if (board.getTeam(rank.getName()) != null) {
+                    Team team = board.getTeam(rank.getName());
                     if (team != null) {
                         team.unregister();
                     }
@@ -132,17 +59,34 @@ public class ColoredNameTag extends JavaPlugin {
             }
         }
     }
-    
-    public ArrayList<String> getRanksArray() {
-        return ranks;
-    }
-    
-    public ArrayList<String> getPermissionArray() {
-        return permessi;
-    }
-    
-    public ArrayList<ChatColor> getColorArray() {
-        return colori;
+
+    public void addPlayerToTeam(Player player) {
+
+        ColorTranslator c = new ColorTranslator();
+
+        Scoreboard b = player.getScoreboard();
+        String pg = getChat().getPrimaryGroup(player);
+        String pn = player.getName();
+        Team team;
+        // TODO: 30/03/21 Add color from perms
+        if (getChat().getPlayerPrefix(player) != getChat().getGroupPrefix(player.getWorld(), pg)) {
+            Team t = b.getTeam(pn);
+            if (t == null) {
+                t = b.registerNewTeam(pn);
+                t.setPrefix(c.colorText(getChat().getPlayerPrefix(player)));
+                t.setSuffix(c.colorText(getChat().getPlayerSuffix(player)));
+            }
+            team = t;
+        } else {
+            Team t = b.getTeam(pg);
+            if (t == null) {
+                t = b.registerNewTeam(pg);
+                t.setPrefix(c.colorText(getChat().getGroupPrefix(player.getWorld(), pg)));
+                t.setSuffix(c.colorText(getChat().getGroupSuffix(player.getWorld(), pg)));
+            }
+            team = t;
+        }
+        team.addEntry(player.getName());
     }
 
     private boolean setupChat() {
@@ -154,4 +98,5 @@ public class ColoredNameTag extends JavaPlugin {
     public static Chat getChat() {
         return chat;
     }
+
 }
