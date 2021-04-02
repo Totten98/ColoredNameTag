@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>it.totten98</groupId>
     <artifactId>ColoredNameTag</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <packaging>jar</packaging>
     <repositories>
         <repository>
@@ -21,7 +21,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <name>ColoredNameTag</name>
-    <description>Create a team and assign a color for each permission defined on config.</description>
+    <description>Create a team and assign prefix and suffix based on permission (vault).</description>
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -40,4 +40,12 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <build>
+        <resources> <!-- Auto compile variables on plugin.yml -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
 </project>
